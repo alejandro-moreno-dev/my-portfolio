@@ -5,7 +5,7 @@ import CitySearch from "./pages/CitySearch";
 
 export default function App() {
   return (
-    <div>
+    <div id="app">
       <Navbar />
       <main className="max-w-4xl mx-auto">
         <Home />
