@@ -1,4 +1,3 @@
-// src/components/CityTime.jsx
 import React, { useEffect, useState } from 'react';
 
 const CityTime = ({ city }) => {
@@ -6,25 +5,22 @@ const CityTime = ({ city }) => {
   const [localTimeInfo, setLocalTimeInfo] = useState(null);
   const [error, setError] = useState(null);
 
-  const formatLocalTime = (isoString, timeZone) => {
+  // 🟢 Format ISO string directly without altering its timezone
+  const formatRawTime = (isoString) => {
     const date = new Date(isoString);
-    const formatter = new Intl.DateTimeFormat('en-US', {
+    return date.toLocaleString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-      timeZone,
-      hour12: false
+      hour12: false,
     });
-
-    return formatter.format(date);
   };
 
-  // Fetch selected city time info
   useEffect(() => {
-    if (!city || !city.lat || !city.lng) return;
+    if (!city?.lat || !city?.lng) return;
 
     const fetchTime = async () => {
       try {
@@ -49,25 +45,35 @@ const CityTime = ({ city }) => {
     fetchTime();
   }, [city]);
 
-  // Get user's local timezone and UTC offset
   useEffect(() => {
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const offsetMinutes = new Date().getTimezoneOffset(); // in minutes
-    const userUtcOffset = -offsetMinutes / 60; // convert to hours
+    const offsetMinutes = new Date().getTimezoneOffset();
+    const userUtcOffset = -offsetMinutes / 60;
 
     setLocalTimeInfo({
       timeZone: userTimeZone,
-      utcOffset: userUtcOffset
+      utcOffset: userUtcOffset,
     });
   }, []);
 
   if (!city) return null;
 
-  // ✅ Safely extract city UTC offset in hours
   const targetUtcOffset =
     timeInfo?.currentUtcOffset?.seconds != null
       ? timeInfo.currentUtcOffset.seconds / 3600
       : null;
+
+  const getTimeDifferenceLabel = () => {
+    if (!timeInfo?.currentLocalTime || !localTimeInfo?.timeZone) return '';
+
+    const cityTime = new Date(timeInfo.currentLocalTime).getTime();
+    const localTime = new Date().toLocaleString('en-US', {
+      timeZone: localTimeInfo.timeZone,
+    });
+    const localTimeMs = new Date(localTime).getTime();
+
+    return cityTime > localTimeMs ? 'ahead' : 'behind';
+  };
 
   return (
     <div className="mt-6 p-4 bg-white rounded-lg shadow text-black text-center">
@@ -80,10 +86,9 @@ const CityTime = ({ city }) => {
       {timeInfo ? (
         <div>
           <p className="text-2xl text-green-500 font-semibold">
-            {formatLocalTime(timeInfo.currentLocalTime, timeInfo.timeZone)}
+            {formatRawTime(timeInfo.currentLocalTime)}
           </p>
 
-          {/* Time zone comparison */}
           {localTimeInfo && targetUtcOffset != null && (
             <div className="mt-4 text-gray-700">
               <p>
@@ -97,19 +102,24 @@ const CityTime = ({ city }) => {
                 {targetUtcOffset >= 0 ? '+' : ''}
                 {targetUtcOffset})
               </p>
-       <p className="mt-1">
-        That’s a time difference of{' '}
-            <strong>
-                {Math.abs(localTimeInfo.utcOffset - targetUtcOffset)} hour
-                {Math.abs(localTimeInfo.utcOffset - targetUtcOffset) !== 1 ? 's' : ''}
-            </strong>{' '}
-            — {city.city} is{' '}
-            <strong>
-                {targetUtcOffset > localTimeInfo.utcOffset ? 'ahead' : 'behind'}
-            </strong>{' '}
-            your local time.
-        </p>
-
+            {Math.abs(localTimeInfo.utcOffset - targetUtcOffset) === 0 ? (
+              <p className="mt-1">
+                You and <strong>{city.city}</strong> are in the <strong>same timezone</strong>.
+              </p>
+            ) : (
+              <p className="mt-1">
+                That’s a time difference of{' '}
+                <strong>
+                  {Math.abs(localTimeInfo.utcOffset - targetUtcOffset)} hour
+                  {Math.abs(localTimeInfo.utcOffset - targetUtcOffset) !== 1 ? 's' : ''}
+                </strong>{' '}
+                — {city.city} is{' '}
+                <strong>
+                  {targetUtcOffset > localTimeInfo.utcOffset ? 'ahead' : 'behind'}
+                </strong>{' '}
+                your local time.
+              </p>
+            )}
             </div>
           )}
         </div>
