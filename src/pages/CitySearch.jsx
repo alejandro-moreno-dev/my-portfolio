@@ -43,9 +43,10 @@ const CitySearch = () => {
 
   return (
     <div className="w-full max-w-md mx-auto mt-10">
-      <label htmlFor="city-input" className="block mb-2 text-lg font-semibold">
-     Select a city or country you are insterested in:
+      <label htmlFor="city-input" className="block mb-2 text-2xl font-semibold">
+      World Time Checker
       </label>
+      <p  className="text-lg font-semibold mb-10">Select a city or country you are insterested in:</p>
       <input
         id="city-input"
         type="text"
