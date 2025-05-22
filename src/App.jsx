@@ -1,0 +1,18 @@
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import CitySearch from "./pages/CitySearch";
+import Projects from "./pages/Projects";
+
+export default function App() {
+  return (
+    <div>
+      <Navbar />
+      <main className="max-w-4xl mx-auto">
+        <Home />
+        <Projects />
+        <CitySearch/>
+      </main>
+    </div>
+  );
+}
+ 
