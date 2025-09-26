@@ -1,5 +1,8 @@
-# TEST PROJECT React + Vite
+# TEST PROJECT
 
+### NOTE: currently due the lack of time, I keep most of my repos private since most of them involve 3rd parties.
+
+React + Vite
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
